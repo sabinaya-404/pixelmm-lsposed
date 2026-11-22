@@ -1,5 +1,8 @@
 package com.sabinaya.pixelmm;
 
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.widget.SeekBar;
 
@@ -22,8 +25,16 @@ public class MainHook implements IXposedHookLoadPackage {
 
         XposedBridge.log("PixelMM: loaded in " + lpparam.packageName);
 
-        hookSeekBarObserver(lpparam.classLoader);   // Hook 1: install the drawable
-        hookOnChanged(lpparam.classLoader);         // Hook 2: animate while playing
+        hookSeekBarObserver(lpparam.classLoader);   // install the drawable + padding
+        hookOnChanged(lpparam.classLoader);         // animate while playing
+        hookRoundCaps(lpparam.classLoader);         // Round the right end
+    }
+
+    // Used by hooks that run many times per second.
+    private void warnOnce(String what, Throwable t) {
+        if (warned) return;
+        warned = true;
+        XposedBridge.log("PixelMM: " + what + " failed: " + t);
     }
 
     private void hookSeekBarObserver(ClassLoader cl) {
@@ -45,6 +56,24 @@ public class MainHook implements IXposedHookLoadPackage {
                                 }
                             } catch (Throwable t) {
                                 XposedBridge.log("PixelMM: swap failed: " + t);
+                            }
+                        }
+
+                        @Override
+                        protected void afterHookedMethod(MethodHookParam param) {
+                            try {
+                                SeekBar bar = (SeekBar) XposedHelpers.getObjectField(param.args[0], "seekBar");
+                                Drawable d = bar.getProgressDrawable();
+                                if (!squiggly.isInstance(d)) return;
+
+                                if (XposedHelpers.getAdditionalInstanceField(bar, "pixelmm_padded") != null) return;
+                                XposedHelpers.setAdditionalInstanceField(bar, "pixelmm_padded", Boolean.TRUE);
+
+                                int pad = (int) Math.ceil(XposedHelpers.getFloatField(d, "strokeWidth") / 2f);
+                                bar.setPadding(bar.getPaddingLeft() + pad, bar.getPaddingTop(),
+                                        bar.getPaddingRight() + pad, bar.getPaddingBottom());
+                            } catch (Throwable t) {
+                                XposedBridge.log("PixelMM: padding failed: " + t);
                             }
                         }
                     });
@@ -86,16 +115,52 @@ public class MainHook implements IXposedHookLoadPackage {
                                     setAnimate.invoke(d, wave);
                                 }
                             } catch (Throwable t) {
-                                if (!warned) {
-                                    warned = true;
-                                    XposedBridge.log("PixelMM: animate failed: " + t);
-                                }
+                                warnOnce("animate", t);
                             }
                         }
                     });
             XposedBridge.log("PixelMM: hooked onChanged");
         } catch (Throwable t) {
             XposedBridge.log("PixelMM: onChanged setup failed: " + t);
+        }
+    }
+
+    // The missing round cap at the right end of the track.
+    private void hookRoundCaps(ClassLoader cl) {
+        try {
+            final Class<?> squiggly = XposedHelpers.findClass(
+                    "com.android.systemui.media.SquigglyProgress", cl);
+            final Field fLine = XposedHelpers.findField(squiggly, "linePaint");
+
+            final Paint cap = new Paint(Paint.ANTI_ALIAS_FLAG);
+            cap.setStyle(Paint.Style.FILL);
+
+            XposedHelpers.findAndHookMethod(squiggly, "draw", Canvas.class,
+                    new XC_MethodHook() {
+                        @Override
+                        protected void afterHookedMethod(MethodHookParam param) {
+                            try {
+                                Drawable d = (Drawable) param.thisObject;
+                                Canvas c = (Canvas) param.args[0];
+                                Paint line = (Paint) fLine.get(d);
+                                Rect b = d.getBounds();
+
+                                float r = line.getStrokeWidth() / 2f;   // cap radius
+                                float cy = b.centerY();                 // same centre line the drawable uses
+
+                                cap.setColor(line.getColor());          // same translucent colour as the track
+                                c.save();
+                                c.clipRect(b.right, cy - r - 1f, b.right + r + 1f, cy + r + 1f);
+                                c.drawCircle(b.right, cy, r, cap);
+                                c.restore();
+                            } catch (Throwable t) {
+                                warnOnce("round cap", t);
+                            }
+                        }
+                    });
+            XposedBridge.log("PixelMM: hooked draw");
+        } catch (Throwable t) {
+            XposedBridge.log("PixelMM: draw setup failed: " + t);
         }
     }
 }
