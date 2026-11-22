@@ -1,0 +1,9 @@
+*.apk
+out_jadx/
+deviceinfo*.txt
+results.txt
+build/
+.gradle/
+local.properties
+*.jks
+*.keystore
