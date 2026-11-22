@@ -16,6 +16,9 @@ An earlier attempt modified MiuiSystemUI.apk and deployed it as a Magisk module.
 - Next, identify the class in MiuiSystemUI that creates the media seekbar.
 - After that, port the SquigglyProgress drawable from AOSP and hook it into the seekbar.
 - The lock screen, notification shade and Control Center may use separate code, so each may need its own hook.
+- SystemUI already contains `SquigglyProgress`, but the media card never installs or animates it.
+- Next: build a small module that installs it and animates it while music plays.
+- The lock screen and shade probably share one card. Control Center is not covered.
 
 ## Tested device
 
