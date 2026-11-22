@@ -3,3 +3,5 @@
 - A class named SquigglyProgress exists in com.android.systemui.media. SeekBarObserver references it.
 - The MIUI media card is MiuiMediaControlPanel, used by MediaCarouselController.
 - Not known yet: which layout the MIUI card uses, and whether Control Center has its own media card.
+- The stock bar is flat because of the layout drawable.
+- No setAnimate(true), and SquigglyProgress already ships in SystemUI.
