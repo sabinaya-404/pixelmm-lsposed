@@ -1,0 +1,21 @@
+plugins { id 'com.android.application' }
+
+android {
+    namespace 'com.sabinaya.pixelmm'
+    compileSdk 33
+    defaultConfig {
+        applicationId 'com.sabinaya.pixelmm' 
+        minSdk 33          // tested only on Android 13
+        targetSdk 33
+        versionCode 1
+        versionName '0.1.0'
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+dependencies {
+    compileOnly 'de.robv.android.xposed:api:82'
+}
