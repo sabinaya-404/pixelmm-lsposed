@@ -16,7 +16,7 @@ Nothing in /system is modified, and the module can be switched off at any time.
 
 ## Tested on
 
-Redmi Note 11 4G (spes), Xiaomi.eu HyperOS 1, Android 13, build V816.0.11.0.TGKMIXM. Verified on the notification shade. The lock screen and Control Center have not been verified. Other builds may use different class names and are not supported.
+Redmi Note 11 4G (spes), Xiaomi.eu HyperOS 1, Android 13, build V816.0.11.0.TGKMIXM. Verified on the notification shade. The lock screen is working but Control Center have not been verified. Other builds may use different class names and are not supported.
 
 ## Install
 
