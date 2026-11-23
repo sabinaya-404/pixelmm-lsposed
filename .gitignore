@@ -1,11 +1,12 @@
-Screenshots/
 *.apk
 out_jadx/
 deviceinfo*.txt
-results.txt
+results*.txt
+share*.txt
 build/
 .gradle/
 local.properties
 *.jks
 *.keystore
 work/
+
