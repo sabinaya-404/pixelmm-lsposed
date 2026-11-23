@@ -1,3 +1,19 @@
+/*
+ * Copyright 2026 sabinaya
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.sabinaya.pixelmm;
 
 import android.graphics.Canvas;
@@ -8,6 +24,8 @@ import android.widget.SeekBar;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.XC_MethodHook;
@@ -17,7 +35,7 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
 public class MainHook implements IXposedHookLoadPackage {
 
-    private boolean warned;
+    private final Set<String> warned = ConcurrentHashMap.newKeySet();
 
     @Override
     public void handleLoadPackage(XC_LoadPackage.LoadPackageParam lpparam) {
@@ -31,11 +49,11 @@ public class MainHook implements IXposedHookLoadPackage {
     }
 
     // Used by hooks that run many times per second.
-    private void warnOnce(String what, Throwable t) {
-        if (warned) return;
-        warned = true;
+private void warnOnce(String what, Throwable t) {
+    if (warned.add(what)) {   // true only the first time this label is seen
         XposedBridge.log("PixelMM: " + what + " failed: " + t);
     }
+}
 
     private void hookSeekBarObserver(ClassLoader cl) {
         try {
