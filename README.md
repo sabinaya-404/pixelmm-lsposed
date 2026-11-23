@@ -1,35 +1,42 @@
 # pixelmm-lsposed
 
-An LSPosed module that replaces the media progress bar in HyperOS SystemUI with the squiggly progress bar found on Pixel devices.
+An LSPosed module that gives the HyperOS media player the Pixel-style squiggly progress bar.
 
-**Status:** early research. The module does not work yet.
+**Status:** working on the test device. Early and unreleased; there is no prebuilt APK.
 
-## Background
+## What it does
 
-The stock HyperOS media controls use a flat progress bar. The Pixel version draws a wavy line that animates while playback is active. This project aims to bring that bar to HyperOS without replacing SystemUI.
+HyperOS SystemUI still contains Google's `SquigglyProgress` class, but its media card never uses it. This module hooks SystemUI at runtime and does three things:
 
-An earlier attempt modified MiuiSystemUI.apk and deployed it as a Magisk module. It caused serious UI failures and was removed. This project hooks SystemUI at runtime through LSPosed instead, so nothing in /system is changed and the module can be disabled at any time.
+- installs that existing class as the media seekbar's progress drawable;
+- turns the wave on only while music is playing, and flattens it when paused or scrubbing;
+- rounds the ends of the track, which would otherwise be cut flat.
 
-## Progress
+Nothing in /system is modified, and the module can be switched off at any time.
 
-- LSPosed and Zygisk are set up on the test device.
-- Next, identify the class in MiuiSystemUI that creates the media seekbar.
-- After that, port the SquigglyProgress drawable from AOSP and hook it into the seekbar.
-- The lock screen, notification shade and Control Center may use separate code, so each may need its own hook.
-- SystemUI already contains `SquigglyProgress`, but the media card never installs or animates it.
-- Next: build a small module that installs it and animates it while music plays.
-- The lock screen and shade probably share one card. Control Center is not covered.
+## Tested on
 
-## Tested device
+Redmi Note 11 4G (spes), Xiaomi.eu HyperOS 1, Android 13, build V816.0.11.0.TGKMIXM. Verified on the notification shade. The lock screen and Control Center have not been verified. Other builds may use different class names and are not supported.
 
-Redmi Note 11 4G (spes), Xiaomi.eu HyperOS 1, Android 13, build V816.0.11.0.TGKMIXM. Other builds may use different class names and are not supported.
+## Install
+
+Requires Magisk with Zygisk enabled and LSPosed (Zygisk build). To build from source you also need JDK 17 and the Android SDK (platform 33).
+
+1. Build: `.\gradlew.bat assembleDebug`
+2. Install: `adb install -r app\build\outputs\apk\debug\app-debug.apk`
+3. In the LSPosed manager, enable PixelMM and tick System UI in its scope.
+4. Restart SystemUI or reboot, then play some music.
 
 ## Disabling the module
 
-Turn the module off in the LSPosed manager and restart SystemUI. If the manager cannot be reached, disable it from adb or boot into Magisk safe mode.
+Turn it off in the LSPosed manager and restart SystemUI. If the manager cannot be reached, run `adb uninstall com.sabinaya.pixelmm` and reboot.
+
+## Notes
+
+How the media card works and how the hooks were found is written up in `docs/research/`.
 
 ## Credits and license
 
-The squiggly progress design is based on SquigglyProgress from the Android Open Source Project (Apache-2.0). The module runs on the LSPosed framework.
+The squiggly progress bar is Google's design from the Android Open Source Project. This repository does not contain that code. The module uses the copy already shipped in the device's SystemUI, through reflection. The module's own code is licensed under Apache-2.0 (see `LICENSE`).
 
-This project is not affiliated with Xiaomi or Google. Use it at your own risk, and back up your boot image before making system changes.
+This project is not affiliated with Xiaomi or Google, and Pixel is a Google trademark. Use it at your own risk, and back up your boot image before making system changes.
