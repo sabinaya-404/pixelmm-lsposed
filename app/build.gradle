@@ -1,15 +1,60 @@
-plugins { id 'com.android.application' }
+
+plugins {
+    id 'com.android.application'
+}
+
+def signingProperties = new Properties()
+def signingPropertiesFile = rootProject.file('local.properties')
+
+if (signingPropertiesFile.exists()) {
+    signingPropertiesFile.withInputStream {
+        signingProperties.load(it)
+    }
+}
+
+def releaseStoreFile = signingProperties.getProperty('RELEASE_STORE_FILE')
+def releaseStorePassword = signingProperties.getProperty('RELEASE_STORE_PASSWORD')
+def releaseKeyAlias = signingProperties.getProperty('RELEASE_KEY_ALIAS')
+def releaseKeyPassword = signingProperties.getProperty('RELEASE_KEY_PASSWORD')
+
+def hasReleaseSigning = [
+    releaseStoreFile,
+    releaseStorePassword,
+    releaseKeyAlias,
+    releaseKeyPassword
+].every { it != null && !it.trim().isEmpty() }
 
 android {
     namespace 'com.sabinaya.pixelmm'
     compileSdk 33
+
     defaultConfig {
-        applicationId 'com.sabinaya.pixelmm' 
-        minSdk 33          // tested only on Android 13
+        applicationId 'com.sabinaya.pixelmm'
+        minSdk 33
         targetSdk 33
         versionCode 1
         versionName '0.1.0'
     }
+
+    if (hasReleaseSigning) {
+        signingConfigs {
+            release {
+                storeFile file(releaseStoreFile)
+                storePassword releaseStorePassword
+                keyAlias releaseKeyAlias
+                keyPassword releaseKeyPassword
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            if (hasReleaseSigning) {
+                signingConfig signingConfigs.release
+            }
+        }
+    }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
