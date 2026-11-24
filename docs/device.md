@@ -17,4 +17,4 @@
 - Package: `com.android.systemui`
 - APK: `/system_ext/priv-app/MiuiSystemUI/MiuiSystemUI.apk`
 - Runs as the system user in one process, so one LSPosed scope covers it.
-- No separate `com.miui.systemui` package was found.
+- The Control Center media card is not in this APK. It is drawn by a separate plugin APK (MiuiSystemUIPlugin.apk), which the      module does not cover.

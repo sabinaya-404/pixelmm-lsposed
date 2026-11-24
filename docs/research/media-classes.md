@@ -20,7 +20,7 @@ Build: V816.0.11.0.TGKMIXM (Xiaomi.eu HyperOS 1, Android 13). Names come from th
 2. After `SeekBarObserver.onChanged`, it calls `setAnimate(enabled && playing && !scrubbing)`. `Progress` has a `playing` field but no getter, so the field is read through reflection.
 3. After `SquigglyProgress.draw`, it paints a round cap at the right end of the track.
 
-All reflection lookups happen once at setup, because `onChanged` and `draw` run many times per second. Every hook body is wrapped in `try/catch`, and each failure is logged once.
+The fields and methods used by the frequently called hooks (onChanged and draw) are looked up once at setup. The hooks still read fields and call setAnimate through reflection, which is cheap at this call rate. Every hook body is wrapped in try/catch. Failures in the frequently called hooks are logged once per hook. Failures at setup or when a card is created are logged each time, which is rare.
 
 ## Why the ends were flat
 
