@@ -14,6 +14,30 @@ HyperOS SystemUI still contains Google's `SquigglyProgress` class, but its media
 
 Nothing in `/system` is modified, and the module can be switched off at any time.
 
+## Screenshots
+
+### Lock Screen
+
+**Before**
+
+![Before - Lock Screen](docs/screenshots/before_lockscreen.jpg)
+
+**After**
+
+![After - Lock Screen](docs/screenshots/after_lockscreen1.jpg)
+
+![After - Lock Screen](docs/screenshots/after_lockscreen2.jpeg)
+
+### Notification Shade
+
+**Before**
+
+![Before - Notification Shade](docs/screenshots/before_notification_shade.jpg)
+
+**After**
+
+![After - Notification Shade](docs/screenshots/after_notification_shade.jpeg)
+
 ## Tested on
 
 - Redmi Note 11 4G (spes)
