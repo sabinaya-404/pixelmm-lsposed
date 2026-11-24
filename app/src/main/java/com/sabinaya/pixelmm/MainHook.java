@@ -49,8 +49,8 @@ public class MainHook implements IXposedHookLoadPackage {
     }
 
     // Used by hooks that run many times per second.
-private void warnOnce(String what, Throwable t) {
-    if (warned.add(what)) {   // true only the first time this label is seen
+    private void warnOnce(String what, Throwable t) {
+     if (warned.add(what)) {   // true only the first time this label is seen
         XposedBridge.log("PixelMM: " + what + " failed: " + t);
     }
 }
