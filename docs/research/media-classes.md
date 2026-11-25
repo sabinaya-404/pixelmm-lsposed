@@ -22,6 +22,8 @@ Build: V816.0.11.0.TGKMIXM (Xiaomi.eu HyperOS 1, Android 13). Names come from th
 
 The fields and methods used by the frequently called hooks (onChanged and draw) are looked up once at setup. The hooks still read fields and call setAnimate through reflection, which is cheap at this call rate. Every hook body is wrapped in try/catch. Failures in the frequently called hooks are logged once per hook. Failures at setup or when a card is created are logged each time, which is rare.
 
+Verified on the notification shade and lock screen. Control Center is not covered: its media card comes from a separate plugin APK.
+
 ## Why the ends were flat
 
 The drawable clips its track at the exact end of the line, so the round cap on the right is sliced off. The module adds the missing cap itself after the original draw. The seekbar padding gives the start of the track room so it is not clipped by the card.
