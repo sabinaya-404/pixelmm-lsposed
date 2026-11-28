@@ -45,7 +45,8 @@ Nothing in `/system` is modified, and the module can be switched off at any time
 - Android 13
 - Build: `V816.0.11.0.TGKMIXM`
 
-Verified on the notification shade and lock screen. Control Center has not been tested.
+Verified on the notification shade and lock screen.
+Control Center: Not tested. Its media controls are implemented separately in `MiuiSystemUIPlugin.apk`, outside PixelMM's current scope.
 
 Other devices and builds have not been tested and may not work.
 
