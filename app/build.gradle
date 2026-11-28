@@ -17,12 +17,19 @@ def releaseStorePassword = signingProperties.getProperty('RELEASE_STORE_PASSWORD
 def releaseKeyAlias = signingProperties.getProperty('RELEASE_KEY_ALIAS')
 def releaseKeyPassword = signingProperties.getProperty('RELEASE_KEY_PASSWORD')
 
-def hasReleaseSigning = [
-    releaseStoreFile,
-    releaseStorePassword,
-    releaseKeyAlias,
-    releaseKeyPassword
-].every { it != null && !it.trim().isEmpty() }
+def requiredSigningProps = [
+    'RELEASE_STORE_FILE'    : releaseStoreFile,
+    'RELEASE_STORE_PASSWORD': releaseStorePassword,
+    'RELEASE_KEY_ALIAS'     : releaseKeyAlias,
+    'RELEASE_KEY_PASSWORD'  : releaseKeyPassword,
+]
+
+def missingSigningProps = requiredSigningProps
+    .findAll { _, v -> v == null || v.trim().isEmpty() }
+    .keySet()
+    .toList()
+
+def hasReleaseSigning = missingSigningProps.isEmpty()
 
 android {
     namespace 'com.sabinaya.pixelmm'
@@ -63,4 +70,26 @@ android {
 
 dependencies {
     compileOnly 'de.robv.android.xposed:api:82'
+}
+
+tasks.register('verifyReleaseSigning') {
+    doLast {
+        if (!missingSigningProps.isEmpty()) {
+            throw new GradleException(
+                'Release signing is required. Missing or empty in local.properties: ' +
+                missingSigningProps.join(', ')
+            )
+        }
+        if (!file(releaseStoreFile).exists()) {
+            throw new GradleException(
+                'Release signing keystore file not found for RELEASE_STORE_FILE.'
+            )
+        }
+    }
+}
+
+tasks.matching {
+    it.name in ['preReleaseBuild', 'assembleRelease', 'packageRelease', 'bundleRelease']
+}.configureEach {
+    dependsOn('verifyReleaseSigning')
 }
